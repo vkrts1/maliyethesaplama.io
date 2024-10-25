@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maliyet Hesaplama</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            flex: 1;
+            min-width: 280px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Maliyet Hesaplama</h1>
+
+    <div class="container">
+        <div class="input-group">
+            <h3>Toplam KG Hesaplama</h3>
+            <label>Gramaj (gr):</label>
+            <input type="number" id="gramaj" placeholder="Gramaj girin">
+            <label>En (cm):</label>
+            <input type="number" id="boy" placeholder="En girin" value="160">
+            <label>Sarım (metre):</label>
+            <input type="number" id="sarim" placeholder="Sarım girin" oninput="updateTopBoy()">
+            <button onclick="hesaplaToplamKg()">Hesapla</button>
+            <div id="toplamKgSonuc" class="result"></div>
+        </div>
+
+        <div class="input-group">
+            <h3>Top Fiyatı Hesaplama</h3>
+            <label>Toplam KG:</label>
+            <input type="number" id="toplamKg" placeholder="Toplam KG girin">
+            <label>KG Fiyatı ($):</label>
+            <input type="number" id="kgFiyat" placeholder="KG fiyatı girin">
+            <button onclick="hesaplaTopFiyat()">Hesapla</button>
+            <div id="topFiyatSonuc" class="result"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="input-group">
+            <h3>Metrekare Hesaplama (160cm en için)</h3>
+            <label>Top Boy (metre):</label>
+            <input type="number" id="topBoy" placeholder="Top boy girin">
+            <button onclick="hesaplaMetrekare()">Hesapla</button>
+            <div id="metrekareSonuc" class="result"></div>
+        </div>
+
+        <div class="input-group">
+            <h3>Birim Metrekare Maliyeti Hesaplama</h3>
+            <label>Toplam Metrekare:</label>
+            <input type="number" id="toplamMetrekare" placeholder="Toplam metrekare girin">
+            <label>Top Fiyatı ($):</label>
+            <input type="number" id="topFiyat" placeholder="Top fiyatı girin">
+            <button onclick="hesaplaBirimMaliyet()">Hesapla</button>
+            <div id="birimMaliyetSonuc" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function hesaplaToplamKg() {
+            const gramaj = parseFloat(document.getElementById('gramaj').value);
+            const en = parseFloat(document.getElementById('boy').value);
+            const sarim = parseFloat(document.getElementById('sarim').value);
+            
+            // Formül: (gramaj × en × sarım) / 100000
+            const toplamKg = (gramaj * en * sarim) / 100000;
+            document.getElementById('toplamKgSonuc').innerHTML = 
+                `Toplam KG: ${toplamKg.toFixed(2)} kg`;
+            
+            // Toplam KG değerini "Top Fiyatı Hesaplama" kısmına otomatik aktar
+            document.getElementById('toplamKg').value = toplamKg.toFixed(2);
+        }
+
+        function hesaplaTopFiyat() {
+            const toplamKg = parseFloat(document.getElementById('toplamKg').value);
+            const kgFiyat = parseFloat(document.getElementById('kgFiyat').value);
+            
+            const topFiyat = toplamKg * kgFiyat;
+            document.getElementById('topFiyatSonuc').innerHTML = 
+                `Top Fiyatı: ${topFiyat.toFixed(2)} $`;
+            
+            // Hesaplanan Top Fiyatını Birim Metrekare Maliyeti kısmına otomatik aktar
+            document.getElementById('topFiyat').value = topFiyat.toFixed(2);
+        }
+
+        function hesaplaMetrekare() {
+            const topBoy = parseFloat(document.getElementById('topBoy').value);
+            const en = 1.60; // 160cm = 1.60m
+            
+            const metrekare = topBoy * en;
+            document.getElementById('metrekareSonuc').innerHTML = 
+                `Metrekare: ${metrekare.toFixed(2)} m²`;
+
+            // Hesaplanan metrekare değerini Birim Metrekare Maliyeti kısmına otomatik aktar
+            document.getElementById('toplamMetrekare').value = metrekare.toFixed(2);
+        }
+
+        function hesaplaBirimMaliyet() {
+            const toplamMetrekare = parseFloat(document.getElementById('toplamMetrekare').value);
+            const topFiyat = parseFloat(document.getElementById('topFiyat').value);
+            
+            const birimMaliyet = topFiyat / toplamMetrekare;
+            document.getElementById('birimMaliyetSonuc').innerHTML = 
+                `Birim Metrekare Maliyeti: ${birimMaliyet.toFixed(2)} $/m²`;
+        }
+
+        // "Sarım" alanına girilen değeri "Top Boy" alanına otomatik olarak aktarır
+        function updateTopBoy() {
+            const sarimValue = document.getElementById('sarim').value;
+            document.getElementById('topBoy').value = sarimValue;
+        }
+    </script>
+</body>
+</html>
